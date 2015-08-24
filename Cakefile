@@ -27,6 +27,7 @@ build_coffee = (callback) ->
 build_copy = () ->
     fs.writeFileSync "#{ build_dir }/README.md", fs.readFileSync("./README.md")
     fs.writeFileSync "#{ build_dir }/LICENSE", fs.readFileSync("./LICENSE")
+    fs.writeFileSync "#{ build_dir }/raml-parser.min.js", fs.readFileSync("./node_modules/raml-parser/dist/raml-parser.min.js")
     fs.writeFileSync "#{ build_dir }/yaml.min.js", fs.readFileSync("./node_modules/yaml-js/yaml.min.js")
 
 # build: build CoffeeScript and copy files to build directory

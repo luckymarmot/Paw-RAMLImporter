@@ -1,5 +1,14 @@
 require "yaml.min.js"
 
+# Hacks to use browser version since we can't use in Paw JS API 1.0
+# raml = require "raml-parser.min.js"
+
+this.window = this
+this.setTimeout = (timeout) ->
+  return
+
+require "raml-parser.min.js"
+
 RAMLImporter = ->
 
     # Create Paw requests from a RAML Request (object)
@@ -140,29 +149,38 @@ RAMLImporter = ->
 
     @importString = (context, string) ->
 
-        try
-          # Try YAML parse
-          ramlCollection = yaml.load string
-        catch yamlParseError
-          throw new Error "Invalid RAML file format"
+        RAML.Parser.load(string).then ((data) ->
+          # Callback never called =(
+          ramlCollection = data
+          console.log 'Data: ' + data
+          return
+        ), (error) ->
+          console.log 'Error parsing: ' + error
+          return
+  
+        # try
+        #   # Try YAML parse
+        #   ramlCollection = yaml.load string
+        # catch yamlParseError
+        #   throw new Error "Invalid RAML file format"
 
-        if ramlCollection
-
-          # Define host to localhost if not specified in file
-          ramlCollection.host = if ramlCollection.host then ramlCollection.host else 'localhost'
-
-          # Create a PawGroup
-          pawRootGroup = context.createRequestGroup ramlCollection.info.title
-
-          # Add RAML groups
-          for own ramlRequestPathName, ramlRequestPathValue of ramlCollection.paths
-
-            pawGroup = @createPawGroup context, ramlCollection, ramlRequestPathName, ramlRequestPathValue
-
-            # Add group to root
-            pawRootGroup.appendChild pawGroup
-
-          return true
+        # if ramlCollection
+        # 
+        #   # Define host to localhost if not specified in file
+        #   ramlCollection.host = if ramlCollection.host then ramlCollection.host else 'localhost'
+        # 
+        #   # Create a PawGroup
+        #   pawRootGroup = context.createRequestGroup ramlCollection.info.title
+        # 
+        #   # Add RAML groups
+        #   for own ramlRequestPathName, ramlRequestPathValue of ramlCollection.paths
+        # 
+        #     pawGroup = @createPawGroup context, ramlCollection, ramlRequestPathName, ramlRequestPathValue
+        # 
+        #     # Add group to root
+        #     pawRootGroup.appendChild pawGroup
+        # 
+        #   return true
 
     return
 
